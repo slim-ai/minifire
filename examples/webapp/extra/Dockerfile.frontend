@@ -1,0 +1,40 @@
+FROM alpine:edge
+
+RUN apk update && apk upgrade -a
+
+RUN apk add \
+    bash \
+    coreutils \
+    curl \
+    entr \
+    git \
+    grep \
+    npm \
+    openjdk11 \
+    procps \
+    python3 \
+    which
+
+RUN curl https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > /usr/local/bin/lein && \
+    chmod +x /usr/local/bin/lein && \
+    lein upgrade
+
+RUN git clone https://github.com/nathants/runclj && \
+    cd runclj && \
+    git checkout 59ad4aff0967778601de16de2a6eb004890de0e6 && \
+    mv bin/* bin/.lein /usr/local/bin && \
+    npm install -g http-server
+
+COPY . /code
+
+WORKDIR /code
+
+RUN rm -rf .lein/
+
+RUN runclj-release frontend.cljs
+
+ENV port=8000
+
+EXPOSE 8000
+
+ENTRYPOINT ["runclj", "frontend.cljs"]

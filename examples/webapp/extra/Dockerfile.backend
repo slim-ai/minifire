@@ -1,0 +1,15 @@
+FROM alpine:edge
+
+RUN apk update && apk upgrade -a
+
+RUN apk add bash go entr
+
+COPY . /code
+
+WORKDIR /code
+
+RUN go build -o backend
+
+EXPOSE 8080
+
+ENTRYPOINT ["/code/backend"]

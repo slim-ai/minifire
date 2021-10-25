@@ -1,3 +1,3 @@
-module gitlab.com/slim-ai/minifier
+module gitlab.com/slim-ai/minifire
 
 go 1.17

@@ -4,7 +4,7 @@ export PATH=$PATH:~/repos/cli-aws
 
 set -xeou pipefail
 
-name=minifier
+name=minifire
 
 [ $(cli-aws aws-account) = 639315261386 ]
 

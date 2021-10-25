@@ -36,7 +36,7 @@ func handlerValue(w http.ResponseWriter, r *http.Request) {
 	err := client().Database("main").Collection("values").FindOneAndUpdate(
 		context.Background(),
 		bson.D{{"name", "value"}},
-		bson.D{{"$inc", bson.D{{"value", 2}}}},
+		bson.D{{"$inc", bson.D{{"value", 1}}}},
 		&options.FindOneAndUpdateOptions{Upsert: &True},
 	).Decode(&result)
 	var data []byte

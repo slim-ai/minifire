@@ -125,7 +125,7 @@
      [:button
       {:on-click state-fetch
        :id "value"}
-      "click to increment database value?!?!?!?"]
+      "click to increment database value"]
      [:span
       {:style {:margin-left "5px"}
        :id "value"}

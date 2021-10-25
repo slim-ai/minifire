@@ -31,15 +31,15 @@ class Main(webengine.Thread):
 
         # click increment
         self.click('button#value')
-        self.wait_for_attr('span#value', 'innerText', ['2'])
+        self.wait_for_attr('span#value', 'innerText', ['1'])
 
         # click increment
         self.click('button#value')
-        self.wait_for_attr('span#value', 'innerText', ['4'])
+        self.wait_for_attr('span#value', 'innerText', ['2'])
 
         # data survives page reload and auto increments on page load
         self.load('http://localhost:8000')
-        self.wait_for_attr('span#value', 'innerText', ['6'])
+        self.wait_for_attr('span#value', 'innerText', ['3'])
 
         if not name_mangling:
             # reset db state

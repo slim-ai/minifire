@@ -6,7 +6,9 @@ end="\033[0m"; black="\033[0;30m"; white="\033[0;37m"; red="\033[0;31m"; green="
 
 name=webapp
 
-trap 'docker kill $(echo $(docker ps --format "{{.Image}} {{.ID}}" | grep ^webapp: | grep -v ^webapp:test)) &>/dev/null || true' EXIT
+trap 'docker kill $(echo $(docker ps --format "{{.Image}} {{.ID}}" | grep -e ^docker-trace: -e ^webapp: | grep -v ^webapp:test)) &>/dev/null || true' EXIT
+
+docker kill $(echo $(docker ps --format "{{.Image}} {{.ID}}" | grep -e ^docker-trace: -e ^webapp: | grep -v ^webapp:test)) &>/dev/null || true
 
 running() {
      docker ps --format '{{.Image}} {{.ID}}' | grep ^$name: | grep -v ^$name:test || true

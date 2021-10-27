@@ -1,18 +1,19 @@
 .PHONY: build test minify build-backend build-frontend build-database build-test run dev
 
-build: build-backend build-frontend build-database build-test
+build:
+	@docker compose --profile=all build
 
 build-backend:
-	@docker build --file extra/Dockerfile.backend  --tag webapp:backend  --network host .
+	@docker compose --profile=all build backend
 
 build-frontend:
-	@docker build --file extra/Dockerfile.frontend --tag webapp:frontend --network host .
+	@docker compose --profile=all build frontend
 
 build-database:
-	@docker build --file extra/Dockerfile.database --tag webapp:database --network host .
+	@docker compose --profile=all build database
 
 build-test:
-	@docker build --file extra/Dockerfile.test     --tag webapp:test     --network host .
+	@docker compose --profile=all build test
 
 test:
 	@bash extra/test.sh

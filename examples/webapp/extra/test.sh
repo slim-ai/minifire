@@ -1,8 +1,10 @@
 #!/bin/bash
 set -eou pipefail
 
-monitor=no source extra/run.sh
+source extra/cleanup.sh
 
-docker run --rm -v$(pwd):/code --network host webapp:test
-
-docker kill $(echo $(docker ps --format "{{.Image}} {{.ID}}" | grep ^$name:)) &>/dev/null || true
+docker compose  --profile=run up -d
+docker compose --profile=test up -d
+docker compose logs -f &
+docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
+exit $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode)

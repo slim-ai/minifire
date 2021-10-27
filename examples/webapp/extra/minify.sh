@@ -1,28 +1,51 @@
 #!/bin/bash
 set -eou pipefail
 
-trap 'docker kill $(echo $(docker ps --format "{{.Image}} {{.ID}}" | grep -e ^docker-trace:bpftrace -e ^$name:)) &>/dev/null || true' EXIT
+source extra/cleanup.sh
 
-source extra/test.sh
+# start trace
+docker-trace files > /tmp/files.txt 2> /tmp/files.err &
+trace_pid=$!
+echo wait for trace to start
+tail -f /tmp/files.err | while read line; do
+    if [ $line = ready ]; then
+        echo trace started
+        break
+    fi
+done || true
 
-tags='
-    frontend
-    backend
-    database
-'
+# test
+docker compose  --profile=run up -d
+docker compose --profile=test up -d
+docker compose logs -f &
+docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
+if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
+    echo tests failed
+    exit 1
+fi
+docker compose --profile=all kill &>/dev/null || true
 
-for tag in $tags; do
-    container=$name:$tag
-    container_minified=$name:${tag}-minified
-    echo minify $container $container_minified
-    cat /tmp/temp.$name:$tag.* | docker-trace minify $container $container_minified
+# stop trace
+kill $trace_pid
+wait $trace_pid
+
+# minify
+docker compose ps --format json | jq -c .[] | while read line; do
+    service=$(echo "$line" | jq -r .Service)
+    id=$(echo "$line" | jq -r .ID)
+    container_in=webapp:${service}
+    container_out=webapp:${service}-minified
+    echo minify $container_in "=>" $container_out
+    cat /tmp/files.txt | grep ^$id | awk '{print $2}' | docker-trace minify $container_in $container_out
 done
 
-suffix="-minified" source extra/test.sh
-
-for tag in $tags; do
-    container=$name:$tag
-    container_minified=$name:${tag}-minified
-    docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}} {{.Size}}' $container          | tail -n1
-    docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}} {{.Size}}' $container_minified | tail -n1
-done | column -t
+# test minified
+export suffix="-minified"
+docker compose  --profile=run up -d
+docker compose --profile=test up -d
+docker compose logs -f &
+docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
+if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
+    echo minified tests failed
+    exit 1
+fi

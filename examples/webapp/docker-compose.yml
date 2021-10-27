@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+
+  ## run profile
+
+  database:
+    build:
+      network: host
+      dockerfile: extra/Dockerfile.database
+    image: webapp:database${suffix:-}
+    network_mode: host
+    profiles: ["run", "all"]
+
+  backend:
+    build:
+      network: host
+      dockerfile: extra/Dockerfile.backend
+    image: webapp:backend${suffix:-}
+    network_mode: host
+    profiles: ["run", "all"]
+
+  frontend:
+    build:
+      network: host
+      dockerfile: extra/Dockerfile.frontend
+    image: webapp:frontend${suffix:-}
+    network_mode: host
+    profiles: ["run", "all"]
+
+  ## test profile
+
+  test:
+    build:
+      network: host
+      dockerfile: extra/Dockerfile.test
+    image: webapp:test
+    network_mode: host
+    volumes:
+      - .:/code
+    profiles: ["test", "all"]
+
+  ## dev profile
+
+  database-dev:
+    image: webapp:database
+    network_mode: host
+    profiles: ["dev"]
+
+  backend-dev:
+    image: webapp:backend
+    network_mode: host
+    entrypoint: ""
+    command: bash extra/entrypoint_dev_backend.sh
+    volumes:
+      - .:/code
+    tty: true
+    profiles: ["dev"]
+
+  frontend-dev:
+    image: webapp:frontend
+    network_mode: host
+    entrypoint: ""
+    command: bash extra/entrypoint_dev_frontend.sh
+    volumes:
+      - .:/code
+    tty: true
+    profiles: ["dev"]
+
+  test-dev:
+    image: webapp:test
+    network_mode: host
+    entrypoint: ""
+    command: bash extra/entrypoint_dev_test.sh
+    tty: true
+    volumes:
+      - .:/code
+    profiles: ["dev"]

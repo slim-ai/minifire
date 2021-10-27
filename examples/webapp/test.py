@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # type: ignore
+import sys
 import os
 import pytest
 import webengine
+
 
 class Main(webengine.Thread):
     action_delay_seconds = .025
@@ -51,4 +53,4 @@ def test():
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    pytest.main(['test.py', '-svvx', '--tb', 'native'])
+    sys.exit(pytest.main(['test.py', '-svvx', '--tb', 'native']))

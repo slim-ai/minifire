@@ -27,8 +27,7 @@ fi
 docker compose --profile=all kill &>/dev/null || true
 
 # stop trace
-kill $trace_pid
-wait $trace_pid
+killall docker-trace -s INT || true
 
 # minify
 docker compose ps --format json | jq -c .[] | grep -v test | while read line; do

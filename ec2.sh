@@ -6,8 +6,6 @@ set -xeou pipefail
 
 name=minifire
 
-[ $(cli-aws aws-account) = 639315261386 ]
-
 aws-vpc-ensure adhoc-vpc
 
 aws-ec2-ensure-sg adhoc-vpc adhoc-vpc tcp:22:0.0.0.0/0 tcp:443:0.0.0.0/0
@@ -31,6 +29,11 @@ cli-aws ec2-wait-ssh $id -y
 
 cli-aws ec2-ssh -y $id -c '
     set -xeou pipefail
+    while true; do
+        df /mnt && break
+        echo waiting for /mnt
+        sleep 1
+    done
     echo "Server = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch" | sudo tee /etc/pacman.d/mirrorlist
     echo "Server = https://mirrors.xtom.com/archlinux/\$repo/os/\$arch"   | sudo tee -a /etc/pacman.d/mirrorlist
     echo "Server = https://mirror.lty.me/archlinux/\$repo/os/\$arch"      | sudo tee -a /etc/pacman.d/mirrorlist
@@ -71,8 +74,10 @@ cli-aws ec2-ssh -y $id -c '
 
 cli-aws ec2-reboot $id -y
 
+sleep 5
+
 cli-aws ec2-wait-ssh $id -y
 
 cli-aws ec2-ssh -y $id -c '
-    timeout -s INT 30 ~/go/bin/docker-trace files
+    timeout -s INT 30 ~/go/bin/docker-trace files || true
 '

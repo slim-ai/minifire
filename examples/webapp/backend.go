@@ -16,7 +16,7 @@ import (
 var True = true
 
 func client() *mongo.Client {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://0.0.0.0:27017"))
 	if err != nil {
 		panic(err)
 	}

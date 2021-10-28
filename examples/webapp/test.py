@@ -10,7 +10,7 @@ class Main(webengine.Thread):
     action_delay_seconds = .025
 
     def main(self):
-        self.load('http://localhost:8000')
+        self.load('http://0.0.0.0:8000')
 
         # wait for homepage to load
         self.wait_for_attr('button.menu-button', 'innerText', ['home', 'other'])
@@ -40,7 +40,7 @@ class Main(webengine.Thread):
         self.wait_for_attr('span#value', 'innerText', ['2'])
 
         # data survives page reload and auto increments on page load
-        self.load('http://localhost:8000')
+        self.load('http://0.0.0.0:8000')
         self.wait_for_attr('span#value', 'innerText', ['3'])
 
         if not name_mangling:

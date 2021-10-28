@@ -4,6 +4,7 @@ set -eou pipefail
 source extra/cleanup.sh
 
 # start trace
+killall docker-trace -s INT || true
 docker-trace files > /tmp/files.txt 2> /tmp/files.err &
 trace_pid=$!
 echo wait for trace to start
@@ -30,7 +31,7 @@ kill $trace_pid
 wait $trace_pid
 
 # minify
-docker compose ps --format json | jq -c .[] | while read line; do
+docker compose ps --format json | jq -c .[] | grep -v test | while read line; do
     service=$(echo "$line" | jq -r .Service)
     id=$(echo "$line" | jq -r .ID)
     container_in=webapp:${service}

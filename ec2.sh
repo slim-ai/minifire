@@ -35,7 +35,7 @@ cli-aws ec2-ssh -y $id -c '
     echo "Server = https://mirrors.xtom.com/archlinux/\$repo/os/\$arch"   | sudo tee -a /etc/pacman.d/mirrorlist
     echo "Server = https://mirror.lty.me/archlinux/\$repo/os/\$arch"      | sudo tee -a /etc/pacman.d/mirrorlist
     sudo pacman -Syu --noconfirm
-    sudo pacman -Sy --noconfirm --needed nss rsync docker readline go entr
+    sudo pacman -Sy --noconfirm --needed nss rsync docker docker-compose readline go entr jq
     sudo usermod -a -G docker $USER
     ##
     go install github.com/nathants/docker-trace@latest
@@ -74,5 +74,5 @@ cli-aws ec2-reboot $id -y
 cli-aws ec2-wait-ssh $id -y
 
 cli-aws ec2-ssh -y $id -c '
-    ~/go/bin/docker-trace files $(echo fake-id-to-build-bpftrace-container | sha256sum | awk "{print \$1}") || true
+    timeout -s INT 30 ~/go/bin/docker-trace files
 '

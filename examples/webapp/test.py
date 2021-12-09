@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 # type: ignore
 import sys
+import time
 import os
 import pytest
 import webengine
-
 
 class Main(webengine.Thread):
     action_delay_seconds = .025
 
     def main(self):
-        self.load('http://0.0.0.0:8000')
 
-        # wait for homepage to load
-        self.wait_for_attr('button.menu-button', 'innerText', ['home', 'other'])
+        for _ in range(60):
+            try:
+                self.load('http://0.0.0.0:8000')
+                self.wait_for_attr('button.menu-button', 'innerText', ['home', 'other'])
+            except:
+                print('waiting for startup')
+                time.sleep(1)
+            else:
+                break
+        else:
+            assert False, 'startup failed after 10 seconds'
 
         # prod builds use name mangling, the js api is for dev tests only
         name_mangling = self.js("window.frontend === undefined")

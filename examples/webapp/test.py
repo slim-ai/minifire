@@ -15,6 +15,16 @@ class Main(webengine.Thread):
             try:
                 self.load('http://0.0.0.0:8000')
                 self.wait_for_attr('button.menu-button', 'innerText', ['home', 'other'])
+
+                # prod builds use name mangling, the js api is for dev tests only
+                name_mangling = self.js("window.frontend === undefined")
+
+                # wipe state
+                if not name_mangling:
+                    self.js('frontend.state_wipe()')
+
+                self.wait_for_attr('span#value', 'innerText', ['0'])
+
             except:
                 print('waiting for startup')
                 time.sleep(1)
@@ -22,14 +32,6 @@ class Main(webengine.Thread):
                 break
         else:
             assert False, 'startup failed after 10 seconds'
-
-        # prod builds use name mangling, the js api is for dev tests only
-        name_mangling = self.js("window.frontend === undefined")
-
-        # wipe state
-        if not name_mangling:
-            self.js('frontend.state_wipe()')
-        self.wait_for_attr('span#value', 'innerText', ['0'])
 
         # click other
         self.click('button#other')

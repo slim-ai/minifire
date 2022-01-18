@@ -18,7 +18,7 @@ if ! id=$(cli-aws ec2-id $name); then
                  --sg adhoc-vpc \
                  --vpc adhoc-vpc \
                  --spot lowestPrice \
-                 -t i3en.xlarge \
+                 -t z1d.2xlarge \
                  -a arch \
                  --gigs 8 \
                  --seconds-timeout $((60*60*5)) \
@@ -37,9 +37,13 @@ cli-aws ec2-ssh -y $id -c '
     echo "Server = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch" | sudo tee /etc/pacman.d/mirrorlist
     echo "Server = https://mirrors.xtom.com/archlinux/\$repo/os/\$arch"   | sudo tee -a /etc/pacman.d/mirrorlist
     echo "Server = https://mirror.lty.me/archlinux/\$repo/os/\$arch"      | sudo tee -a /etc/pacman.d/mirrorlist
+    sudo pacman -Sy --noconfirm archlinux-keyring
     sudo pacman -Syu --noconfirm
-    sudo pacman -Sy --noconfirm --needed nss rsync docker docker-compose readline go entr jq
+    sudo pacman -Sy --noconfirm --needed nss rsync docker docker-compose readline go entr jq caddy lego python
     sudo usermod -a -G docker $USER
+    ##
+    sudo python -m ensurepip
+    sudo python -m pip install glances[docker]
     ##
     go install github.com/nathants/docker-trace@latest
     echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
@@ -56,15 +60,6 @@ cli-aws ec2-ssh -y $id -c '
     sudo systemctl start docker.service
     sudo systemctl enable containerd.service
     sudo systemctl enable docker.service
-    ##
-    curl -OL https://github.com/caddyserver/caddy/releases/download/v2.4.5/caddy_2.4.5_linux_amd64.tar.gz
-    tar xf caddy*
-    curl -OL https://github.com/go-acme/lego/releases/download/v4.4.0/lego_v4.4.0_linux_amd64.tar.gz
-    tar xf lego*
-    sudo mv -f caddy /usr/local/bin
-    sudo setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/caddy
-    sudo mv -f lego /usr/local/bin
-    rm lego* caddy* LICENSE README* CHANGELOG*
     ##
     set-opt /etc/default/grub "GRUB_CMDLINE_LINUX=" '"systemd.unified_cgroup_hierarchy=1"'
     sudo grub-mkconfig | sudo tee /boot/grub/grub.cfg

@@ -1,0 +1,30 @@
+FROM archlinux:latest
+
+RUN echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+
+RUN yes | pacman -Sy archlinux-keyring --noconfirm && \
+    yes | pacman -Sy --noconfirm \
+        base-devel \
+        git \
+        jdk-openjdk
+
+RUN useradd -u 1000 -d /home/makepkg -m makepkg && \
+    echo "makepkg ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN cd /tmp && \
+    git clone https://aur.archlinux.org/zookeeper-stable.git && \
+    cd zookeeper-stable && \
+    git checkout ec33c1e0f55d9072fa125ff8e10b3578640e494a && \
+    chown -R makepkg . && \
+    su -l makepkg -c 'cd /tmp/zookeeper-stable && makepkg -s' && \
+    pacman -U --noconfirm *.zst
+
+RUN cd /tmp && \
+    git clone https://aur.archlinux.org/kafka.git && \
+    cd kafka && \
+    git checkout c67ccb64457a76888920533c72a5fca66f72d237 && \
+    chown -R makepkg . && \
+    sed -i 's/http:/https:/' PKGBUILD && \
+    su -l makepkg -c 'cd /tmp/kafka && makepkg -s' && \
+    pacman -U --noconfirm *.zst && \
+    cat /tmp/kafka/pkg/kafka/etc/kafka/server.properties > /server.properties

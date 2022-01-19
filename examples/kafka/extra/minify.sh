@@ -15,14 +15,12 @@ tail -f /tmp/files.err | while read line; do
     fi
 done || true
 
-
 sleep 5 # why is zookeeper not building?
 
 # test
+docker compose logs -f &
 docker compose  --profile=run up -d
-
 docker compose --profile=test up -d
-docker compose logs -f | grep test &
 docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
 if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
     echo tests failed
@@ -35,21 +33,18 @@ killall docker-trace -s INT || true
 
 # minify
 docker compose ps --format json | jq -c .[] | grep -v test | while read line; do
+    container_id=$(echo "$line" | jq -r .ID)
     service=$(echo "$line" | jq -r .Service)
-    id=$(echo "$line" | jq -r .ID)
-    container_id=$(docker compose images ${service} -q)
-    container_in=$(docker images --no-trunc|grep $container_id|awk '{print $1 ":" $2}' | head -n1)
+    container_in=$(eval "echo $(cat docker-compose.yml | yq .services.${service}.image)")
     container_out=${container_in}-minified
-    echo minify $id $container_in "=>" $container_out $(cat /tmp/files.txt | grep ^$id | wc -l)
-    cat /tmp/files.txt | grep ^$id | awk '{print $2}' | docker-trace minify $container_in $container_out
+    echo minify $container_id $container_in "=>" $container_out $(cat /tmp/files.txt | grep ^$container_id | wc -l)
+    cat /tmp/files.txt | grep ^$container_id | awk '{print $2}' | docker-trace minify $container_in $container_out
 done
 
 # test minified
-export suffix="-minified"
+docker compose logs -f &
 docker compose  --profile=run up -d
-
 docker compose --profile=test up -d
-docker compose logs -f | grep test &
 docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
 if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
     echo minified tests failed

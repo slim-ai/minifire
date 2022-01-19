@@ -38,7 +38,7 @@ cli-aws ec2-ssh -y $id -c '
     echo "Server = https://mirrors.xtom.com/archlinux/\$repo/os/\$arch"   | sudo tee -a /etc/pacman.d/mirrorlist
     echo "Server = https://mirror.lty.me/archlinux/\$repo/os/\$arch"      | sudo tee -a /etc/pacman.d/mirrorlist
     sudo pacman -Sy --noconfirm archlinux-keyring
-    sudo pacman -Syu --noconfirm
+    sudo pacman -Syyu --noconfirm
     sudo pacman -Sy --noconfirm --needed nss rsync docker docker-compose readline go entr jq caddy lego python
     sudo usermod -a -G docker $USER
     ##

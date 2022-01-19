@@ -1,0 +1,13 @@
+FROM archlinux:latest
+
+RUN echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+
+RUN pacman -Syu --noconfirm go
+
+COPY . /code
+
+WORKDIR /code
+
+RUN cd extra && go build
+
+CMD go run code/extra/test.go

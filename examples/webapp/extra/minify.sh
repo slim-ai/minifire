@@ -31,10 +31,10 @@ killall docker-trace -s INT || true
 
 # minify
 docker compose ps --format json | jq -c .[] | grep -v test | while read line; do
-    service=$(echo "$line" | jq -r .Service)
     id=$(echo "$line" | jq -r .ID)
-    container_in=webapp:${service}
-    container_out=webapp:${service}-minified
+    service=$(echo "$line" | jq -r .Service)
+    container_in=$(eval "echo $(cat docker-compose.yml | yq .services.${service}.image)")
+    container_out=${container_in}-minified
     echo minify $container_in "=>" $container_out
     cat /tmp/files.txt | grep ^$id | awk '{print $2}' | docker-trace minify $container_in $container_out
 done

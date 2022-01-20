@@ -15,12 +15,12 @@ tail -f /tmp/files.err | while read line; do
     fi
 done || true
 
-sleep 5 # why is zookeeper not building?
+sleep 5 # why do traces need a second to startup?
 
 # test
-docker compose logs -f &
 docker compose  --profile=run up -d
 docker compose --profile=test up -d
+docker compose logs -f &
 docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
 if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
     echo tests failed
@@ -40,13 +40,3 @@ docker compose ps --format json | jq -c .[] | grep -v test | while read line; do
     echo minify $container_id $container_in "=>" $container_out $(cat /tmp/files.txt | grep ^$container_id | wc -l)
     cat /tmp/files.txt | grep ^$container_id | awk '{print $2}' | docker-trace minify $container_in $container_out
 done
-
-# test minified
-docker compose logs -f &
-docker compose  --profile=run up -d
-docker compose --profile=test up -d
-docker wait $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ID)
-if [ 0 != $(docker compose ps --format json | jq -c .[] | grep test | jq -r .ExitCode) ]; then
-    echo minified tests failed
-    exit 1
-fi

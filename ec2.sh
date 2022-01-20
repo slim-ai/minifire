@@ -43,7 +43,7 @@ cli-aws ec2-ssh -y $id -c '
     sudo usermod -a -G docker $USER
     ##
     sudo python -m ensurepip
-    sudo python -m pip install glances[docker]
+    sudo python -m pip install yq glances[docker]
     ##
     go install github.com/nathants/docker-trace@latest
     echo "export PATH=\$PATH:~/go/bin" >> ~/.bashrc
@@ -74,5 +74,5 @@ sleep 5
 cli-aws ec2-wait-ssh $id -y
 
 cli-aws ec2-ssh -y $id -c '
-    timeout -s INT 30 ~/go/bin/docker-trace files || true
+    timeout -s INT 60 ~/go/bin/docker-trace files || true
 '

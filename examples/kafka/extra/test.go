@@ -43,6 +43,7 @@ func main() {
 		}
 		err := test()
 		if err == nil {
+			fmt.Println("[ok] tests pass")
 			return
 		}
 		fmt.Println("retrying because:", err)

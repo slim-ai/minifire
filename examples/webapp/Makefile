@@ -1,5 +1,8 @@
 .PHONY: build test minify build-backend build-frontend build-database build-test run dev
 
+pull:
+	docker compose --profile=all pull
+
 build:
 	docker compose --profile=all build
 

@@ -8,7 +8,7 @@ services:
     build:
       network: host
       dockerfile: extra/Dockerfile.database
-    image: webapp:database${suffix:-}
+    image: nathants/webapp:database${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
 
@@ -16,7 +16,7 @@ services:
     build:
       network: host
       dockerfile: extra/Dockerfile.backend
-    image: webapp:backend${suffix:-}
+    image: nathants/webapp:backend${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
 
@@ -24,7 +24,7 @@ services:
     build:
       network: host
       dockerfile: extra/Dockerfile.frontend
-    image: webapp:frontend${suffix:-}
+    image: nathants/webapp:frontend${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
 
@@ -34,7 +34,7 @@ services:
     build:
       network: host
       dockerfile: extra/Dockerfile.test
-    image: webapp:test
+    image: nathants/webapp:test
     network_mode: host
     volumes:
       - .:/code
@@ -43,12 +43,12 @@ services:
   ## dev profile
 
   database-dev:
-    image: webapp:database
+    image: nathants/webapp:database
     network_mode: host
     profiles: ["dev"]
 
   backend-dev:
-    image: webapp:backend
+    image: nathants/webapp:backend
     network_mode: host
     entrypoint: ""
     command: bash extra/entrypoint_dev_backend.sh
@@ -58,7 +58,7 @@ services:
     profiles: ["dev"]
 
   frontend-dev:
-    image: webapp:frontend
+    image: nathants/webapp:frontend
     network_mode: host
     entrypoint: ""
     command: bash extra/entrypoint_dev_frontend.sh
@@ -68,7 +68,7 @@ services:
     profiles: ["dev"]
 
   test-dev:
-    image: webapp:test
+    image: nathants/webapp:test
     network_mode: host
     entrypoint: ""
     command: bash extra/entrypoint_dev_test.sh

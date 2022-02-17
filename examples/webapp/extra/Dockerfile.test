@@ -16,6 +16,9 @@ RUN python -m pip install \
 
 COPY . /code
 
+# deleting pyc is needed for minification, otherwise only the pyc is included in minified image
+RUN find / -type f -name *.pyc | xargs rm -v
+
 WORKDIR /code
 
 ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-dev-shm-usage --disable-gpu"

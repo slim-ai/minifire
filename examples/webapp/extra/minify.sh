@@ -32,7 +32,7 @@ docker compose --profile=all kill &>/dev/null || true
 killall docker-trace -s INT || true
 
 # minify
-docker compose ps --format json | jq -c .[] | while read line; do
+docker compose ps --format json | jq -c .[] | grep -v test | while read line; do
     id=$(echo "$line" | jq -r .ID)
     service=$(echo "$line" | jq -r .Service)
     container_in=$(eval "echo $(cat docker-compose.yml | yq .services.${service}.image)")

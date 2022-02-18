@@ -10,5 +10,5 @@ test:
 	bash extra/test.sh
 
 minify:
-	bash extra/minify.sh
+	go run extra/minify.go
 	suffix=-minified bash extra/test.sh

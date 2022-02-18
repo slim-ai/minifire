@@ -25,6 +25,7 @@ func client() *mongo.Client {
 
 func handlerWipe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	err := client().Database("main").Collection("values").Drop(context.Background())
 	if err != nil {
 	    panic(err)
@@ -33,6 +34,7 @@ func handlerWipe(w http.ResponseWriter, r *http.Request) {
 
 func handlerValue(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	var result bson.D
 	err := client().Database("main").Collection("values").FindOneAndUpdate(
 		context.Background(),

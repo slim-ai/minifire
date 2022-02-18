@@ -109,13 +109,15 @@
        [(:page @state)]]]])
 
   (defn state-fetch []
-    (go (let [resp (<! (http/get "http://0.0.0.0:8080/value" {:with-credentials? false}))]
+    (go (let [url (str "http://" js/window.location.hostname ":8080/value")
+              resp (<! (http/get url {:with-credentials? false}))]
           (if (:success resp)
             (swap! state assoc :value (js/Number.parseInt (:body resp))))
           (log :state-fetch resp))))
 
   (defn state-wipe []
-    (go (let [resp (<! (http/get "http://0.0.0.0:8080/wipe" {:with-credentials? false}))]
+    (go (let [url (str "http://" js/window.location.hostname ":8080/wipe")
+              resp (<! (http/get url {:with-credentials? false}))]
           (log :state-wipe resp))
         (<! (state-fetch)))
     nil)
@@ -148,7 +150,7 @@
 
   (defn -main []
     ;; (defonce repl (repl/connect "http://10.0.1.5:9000/repl")) ;; phone
-    (defonce repl (repl/connect "http://0.0.0.0:9000/repl")) ;; 0.0.0.0
+    ;; (defonce repl (repl/connect "http://0.0.0.0:9000/repl")) ;; 0.0.0.0
     (defonce init (state-fetch))
     (bide/start! (bide/router router) {:default home
                                        :on-navigate #(swap! state merge {:page % :parts (href-parts)})

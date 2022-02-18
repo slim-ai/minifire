@@ -34,7 +34,7 @@ services:
     build:
       network: host
       dockerfile: extra/Dockerfile.test
-    image: nathants/webapp:test
+    image: nathants/webapp:test${suffix:-}
     network_mode: host
     volumes:
       - .:/code

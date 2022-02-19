@@ -192,6 +192,12 @@ func minify() error {
 		// get names and ids
 		id := val["ID"].(string)
 		serviceName := val["Service"].(string)
+
+		// do not minify test container by default
+		if os.Getenv("MINIFY_TEST") == "" && serviceName == "test" {
+			continue
+		}
+
 		services := composeData["services"].(map[string]interface{})
 		service := services[serviceName].(map[string]interface{})
 		containerIn := service["image"].(string)

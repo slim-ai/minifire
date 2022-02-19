@@ -20,6 +20,10 @@ func cleanup() {
 	_ = exec.Command("docker", "compose", "--profile=all", "rm", "-f").Run()
 }
 
+func pidRunning(pid int) bool {
+	return syscall.Kill(pid, syscall.Signal(0)) == nil
+}
+
 func minify() error {
 	cleanup()
 	defer cleanup()
@@ -144,12 +148,18 @@ func minify() error {
 		}
 	}
 	if exitCode != 0 {
-		panic("tests failed")
+		err := fmt.Errorf("tests failed")
+		lib.Logger.Println("error:", err)
+		return err
 	}
 
 	// stop trace
 	fmt.Println("stop trace")
 	_ = exec.Command("docker", "compose", "--profile=all", "kill").Run()
+
+	if !pidRunning(cmdTrace.Process.Pid) {
+		panic("trace should still be running")
+	}
 	_ = cmdTrace.Process.Signal(syscall.SIGINT)
 	_ = cmdTrace.Wait()
 	err = cmdTraceStdout.Close()
@@ -157,10 +167,20 @@ func minify() error {
 		lib.Logger.Println("error:", err)
 		return err
 	}
+	data, err := ioutil.ReadFile("/tmp/files.txt")
+	if err != nil {
+		lib.Logger.Println("error:", err)
+		return err
+	}
+	if len(data) == 0 {
+		err := fmt.Errorf("no trace data in /tmp/files.txt")
+		lib.Logger.Println("error:", err)
+		return err
+	}
 	fmt.Println("trace stopped")
 
 	// read docker-compose.yml
-	data, err := ioutil.ReadFile("docker-compose.yml")
+	data, err = ioutil.ReadFile("docker-compose.yml")
 	if err != nil {
 		lib.Logger.Println("error:", err)
 		return err
@@ -213,7 +233,7 @@ func minify() error {
 		}
 		containerIn = cmdResolveEnvVarsStdout.String()
 		containerOut := containerIn + "-minified"
-		fmt.Println("minify", containerIn, "=>", containerOut)
+		fmt.Println()
 
 		// start minify
 		cmdMinify := exec.Command("docker-trace", "minify", containerIn, containerOut)

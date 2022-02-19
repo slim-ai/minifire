@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/nathants/cli-aws/lib"
@@ -26,19 +27,19 @@ func minify() error {
 
 	// start trace
 	_ = exec.Command("killall", "docker-trace", "-s", "INT").Run()
-	cmd := exec.Command("docker-trace", "files")
-	stdout, err := os.Create("/tmp/files.txt")
+	cmdTrace := exec.Command("docker-trace", "files")
+	cmdTraceStdout, err := os.Create("/tmp/files.txt")
 	if err != nil {
 		lib.Logger.Println("error:", err)
 		return err
 	}
-	cmd.Stdout = stdout
-	stderr, err := cmd.StderrPipe()
+	cmdTrace.Stdout = cmdTraceStdout
+	stderr, err := cmdTrace.StderrPipe()
 	if err != nil {
 		lib.Logger.Println("error:", err)
 		return err
 	}
-	err = cmd.Start()
+	err = cmdTrace.Start()
 	if err != nil {
 		lib.Logger.Println("error:", err)
 		return err
@@ -145,9 +146,17 @@ func minify() error {
 		panic("tests failed")
 	}
 
-	// cleanup
+	// stop trace
+	fmt.Println("stop trace")
 	_ = exec.Command("docker", "compose", "--profile=all", "kill").Run()
-	_ = exec.Command("killall", "docker-trace", "-s", "INT").Run()
+	_ = cmdTrace.Process.Signal(syscall.SIGINT)
+	_ = cmdTrace.Wait()
+	err = cmdTraceStdout.Close()
+	if err != nil {
+		lib.Logger.Println("error:", err)
+	    return err
+	}
+	fmt.Println("trace stopped")
 
 	// read docker-compose.yml
 	data, err := ioutil.ReadFile("docker-compose.yml")

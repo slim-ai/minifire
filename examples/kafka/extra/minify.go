@@ -30,7 +30,7 @@ func minify() error {
 
 	// start trace
 	_ = exec.Command("killall", "docker-trace", "-s", "INT").Run()
-	cmdTrace := exec.Command("docker-trace", "files")
+	cmdTrace := exec.Command("docker-trace", "files", "--rb-pages", "16384")
 	cmdTraceStdout, err := os.Create("/tmp/files.txt")
 	if err != nil {
 		lib.Logger.Println("error:", err)

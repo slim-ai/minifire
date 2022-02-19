@@ -10,4 +10,4 @@ WORKDIR /code
 
 RUN cd extra && go build
 
-CMD go run /code/extra/test.go
+CMD go run /code/test.go

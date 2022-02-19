@@ -220,6 +220,7 @@ func minify() error {
 			lib.Logger.Println("error:", err)
 			return err
 		}
+		seen := make(map[string]interface{})
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			line := strings.TrimRight(string(scanner.Bytes()), "\n")
@@ -229,6 +230,11 @@ func minify() error {
 			    return err
 			}
 			if id == lineId {
+				_, ok := seen[lineVal]
+				if !ok {
+					fmt.Println("include:", lineVal)
+					seen[lineVal] = nil
+				}
 				_, err := cmdMinifyStdin.Write([]byte(lineVal+"\n"))
 				if err != nil {
 					lib.Logger.Println("error:", err)

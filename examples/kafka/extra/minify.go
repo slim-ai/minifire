@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/nathants/cli-aws/lib"
 	yaml "gopkg.in/yaml.v3"
@@ -46,21 +45,24 @@ func minify() error {
 	}
 
 	// wait for trace to be ready
-	scanner := bufio.NewScanner(stderr)
-	for scanner.Scan() {
-		line := string(scanner.Bytes())
-		line = strings.TrimRight(line, "\n")
-		if line == "ready" {
-			fmt.Println("trace started")
-			break
+	wait := make(chan error)
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			line := string(scanner.Bytes())
+			line = strings.TrimRight(line, "\n")
+			if line == "ready" {
+				wait <- nil
+			}
+			fmt.Println("trace:", line)
 		}
-		time.Sleep(100 * time.Millisecond)
-	}
-	err = scanner.Err()
-	if err != nil {
-		lib.Logger.Println("error:", err)
-		return err
-	}
+		err = scanner.Err()
+		if err != nil {
+			lib.Logger.Println("error:", err)
+			return
+		}
+	}()
+	<-wait
 
 	// services up
 	err = exec.Command("docker", "compose", "--profile=run", "up", "-d").Run()

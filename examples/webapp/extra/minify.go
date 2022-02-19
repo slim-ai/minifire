@@ -61,7 +61,6 @@ func minify() error {
 		lib.Logger.Println("error:", err)
 		return err
 	}
-	time.Sleep(5 * time.Second) // why do traces need a second to startup?
 
 	// services up
 	err = exec.Command("docker", "compose", "--profile=run", "up", "-d").Run()

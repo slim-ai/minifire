@@ -105,6 +105,13 @@ cli-aws ec2-ssh $id -c "
     set-opt /lib/systemd/system/docker.service ExecStart= '/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root /mnt/docker-data --exec-root /mnt/docker-exec'
     set-opt /lib/systemd/system/containerd.service ExecStart= '/usr/bin/containerd --root /mnt/containerd-root --state /mnt/containerd-state'
     sudo systemctl daemon-reload
+        while true; do
+            if df | grep /mnt; then
+                break
+            fi
+            echo wait for /mnt
+            sleep 1
+        done
     sudo systemctl restart containerd.service
     sudo systemctl restart docker.service
 "

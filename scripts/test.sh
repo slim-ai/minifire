@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eou pipefail
 
-source $(dirname $(dirname $0))/extra/cleanup.sh
+source $(dirname $(dirname $0))/scripts/cleanup.sh
 
 docker compose  --profile=run up -d
 docker compose --profile=test up -d

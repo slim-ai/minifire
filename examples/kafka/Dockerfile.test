@@ -8,6 +8,6 @@ COPY . /code
 
 WORKDIR /code
 
-RUN cd extra && go build
+RUN go build # build once to fetch go deps and warm compiler cache so later we cant mount -v $(pwd):/code
 
 CMD go run /code/test.go

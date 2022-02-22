@@ -7,7 +7,7 @@ services:
   database:
     build:
       network: host
-      dockerfile: extra/Dockerfile.database
+      dockerfile: Dockerfile.database
     image: nathants/webapp:database${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
@@ -15,7 +15,7 @@ services:
   backend:
     build:
       network: host
-      dockerfile: extra/Dockerfile.backend
+      dockerfile: Dockerfile.backend
     image: nathants/webapp:backend${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
@@ -23,7 +23,7 @@ services:
   frontend:
     build:
       network: host
-      dockerfile: extra/Dockerfile.frontend
+      dockerfile: Dockerfile.frontend
     image: nathants/webapp:frontend${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
@@ -33,7 +33,7 @@ services:
   test:
     build:
       network: host
-      dockerfile: extra/Dockerfile.test
+      dockerfile: Dockerfile.test
     image: nathants/webapp:test${suffix:-}
     network_mode: host
     volumes:
@@ -51,7 +51,7 @@ services:
     image: nathants/webapp:backend
     network_mode: host
     entrypoint: ""
-    command: bash extra/entrypoint_dev_backend.sh
+    command: bash entrypoint_dev_backend.sh
     volumes:
       - .:/code
     tty: true
@@ -61,7 +61,7 @@ services:
     image: nathants/webapp:frontend
     network_mode: host
     entrypoint: ""
-    command: bash extra/entrypoint_dev_frontend.sh
+    command: bash entrypoint_dev_frontend.sh
     volumes:
       - .:/code
     tty: true
@@ -71,7 +71,7 @@ services:
     image: nathants/webapp:test
     network_mode: host
     entrypoint: ""
-    command: bash extra/entrypoint_dev_test.sh
+    command: bash entrypoint_dev_test.sh
     tty: true
     volumes:
       - .:/code

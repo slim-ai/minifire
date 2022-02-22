@@ -7,7 +7,7 @@ build:
 	docker compose --profile=all build
 
 test:
-	bash ../../extra/test.sh
+	bash ../../scripts/test.sh
 
 minify:
-	bash ../../extra/minify.sh
+	bash ../../scripts/minify.sh

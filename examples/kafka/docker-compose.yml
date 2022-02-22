@@ -5,7 +5,7 @@ services:
   kafka:
     build:
       network: host
-      dockerfile: extra/Dockerfile.kafka
+      dockerfile: Dockerfile.kafka
     image: nathants/kafka:latest${suffix:-}
     network_mode: host
     profiles: ["run", "all"]
@@ -28,7 +28,7 @@ services:
   zookeeper:
     build:
       network: host
-      dockerfile: extra/Dockerfile.zookeeper
+      dockerfile: Dockerfile.zookeeper
     image: nathants/zookeeper:latest${suffix:-}
     network_mode: host
     environment:
@@ -40,7 +40,7 @@ services:
   test:
     build:
       network: host
-      dockerfile: extra/Dockerfile.test
+      dockerfile: Dockerfile.test
     image: nathants/kafka-test:latest
     network_mode: host
     volumes:

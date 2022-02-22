@@ -6,10 +6,6 @@ if !which cli-aws &>/dev/null; then
     echo fatal, need to: go get github.com/nathants/cli-aws
 fi
 
-if !which aws-ec2-ls &>/dev/null; then
-    echo fatal, need to: python3 -m pip install git+https://github.com/nathants/cli-aws
-fi
-
 name=minifire
 keypair=${KEYPAIR_NAME:-minifire}
 keyfile=${KEYPAIR_PUBFILE:-~/.ssh/id_ed25519.pub}
@@ -29,8 +25,8 @@ if id=$(cli-aws ec2-id $name); then
 fi
 
 if ami=$(cli-aws ec2-latest-ami $name) && [ -z "${REBUILD:-}" ]; then
-    aws-vpc-ensure adhoc-vpc
-    aws-ec2-ensure-sg adhoc-vpc adhoc-vpc tcp:22:0.0.0.0/0 tcp:443:0.0.0.0/0
+    cli-aws vpc-ensure adhoc-vpc
+    cli-aws ec2-ensure-sg adhoc-vpc adhoc-vpc tcp:22:0.0.0.0/0 tcp:443:0.0.0.0/0
     cli-aws ec2-ensure-keypair $keypair $keyfile
     id=$(cli-aws ec2-new --type z1d.xlarge --ami $ami --spot lowestPrice $args)
     cli-aws ec2-wait-ssh $id

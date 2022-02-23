@@ -2,8 +2,6 @@ version: "3.9"
 
 services:
 
-  ## run profile
-
   database:
     build:
       network: host
@@ -28,8 +26,6 @@ services:
     network_mode: host
     profiles: ["run", "all"]
 
-  ## test profile
-
   test:
     build:
       network: host
@@ -39,40 +35,3 @@ services:
     volumes:
       - .:/code
     profiles: ["test", "all"]
-
-  ## dev profile
-
-  database-dev:
-    image: nathants/webapp:database
-    network_mode: host
-    profiles: ["dev"]
-
-  backend-dev:
-    image: nathants/webapp:backend
-    network_mode: host
-    entrypoint: ""
-    command: bash entrypoint_dev_backend.sh
-    volumes:
-      - .:/code
-    tty: true
-    profiles: ["dev"]
-
-  frontend-dev:
-    image: nathants/webapp:frontend
-    network_mode: host
-    entrypoint: ""
-    command: bash entrypoint_dev_frontend.sh
-    volumes:
-      - .:/code
-    tty: true
-    profiles: ["dev"]
-
-  test-dev:
-    image: nathants/webapp:test
-    network_mode: host
-    entrypoint: ""
-    command: bash entrypoint_dev_test.sh
-    tty: true
-    volumes:
-      - .:/code
-    profiles: ["dev"]
